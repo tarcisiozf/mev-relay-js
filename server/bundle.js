@@ -1,8 +1,7 @@
 const { ethers } = require('ethers')
-const _ = require('lodash')
 const { keccak256 } = require('ethers/lib/utils')
 
-const BLACKLIST = [
+const BLACKLIST = new Set([
   // OFAC banned addresses
   '0x8576acc5c05d6ce88f4e49bf65bdf0c62f91353c',
   '0xd882cfc20f52f2599d84b8e8d58c7fb62cfe344b',
@@ -16,12 +15,10 @@ const BLACKLIST = [
   '0x72a5843cc08275c8171e582972aa4fda8c397b2a',
   '0x7f19720a857f834887fc9a7bc0a0fbe7fc7f8102',
   '0x9f4cda013e354b8fc285bf4b9a60460cee7f7ea9'
-]
+])
 
 function checkBlacklistTx(tx) {
-  return (
-    (tx.to && _.includes(BLACKLIST, tx.to.toString().toLowerCase())) || (tx.from && _.includes(BLACKLIST, tx.from.toString().toLowerCase()))
-  )
+  return (tx.to && BLACKLIST.has(tx.to.toString().toLowerCase())) || (tx.from && BLACKLIST.has(tx.from.toString().toLowerCase()))
 }
 
 function checkBlacklist(txs) {
@@ -51,4 +48,5 @@ function generateBundleHash(txs) {
 
   return keccak256(hashes)
 }
+
 module.exports = { checkBlacklist, getParsedTransactions, generateBundleHash }
